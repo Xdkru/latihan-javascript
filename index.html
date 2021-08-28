@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>     
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Quiz</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        body{
+            background: rgb(73, 209, 61);
+            display: flex;
+            justify-content: center;
+        }
+
+        #btn {
+            background-color: rgb(226, 214, 48);
+            padding: 10px 15px;
+            width: 120px;
+            height: 50px;
+            border-radius: 8px;
+            box-shadow: 0 5px 0 rgb(153, 131, 34);
+            border:none;
+            color: #fff;
+            font-size:15px;;
+        }
+        #btn:active{
+            position: relative;
+            top:5px;
+            left:0;
+            box-shadow: 0 0 0 transparent;
+        }
+
+        #op_window,#quiz_window{
+            /* margin-top:50%; 
+            responsive
+            */
+            margin-top: 15%;
+            text-align: center;
+        }
+
+        #op_window h1{
+            color: aliceblue;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 50px;
+        }
+        #op_window h3{
+            color: #f5f1f1;
+            font-family: monserrat;
+            font-size: 18px;
+        }
+        .hidden{
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="op_window">
+        <h1>Quiz</h1>
+        <h3>Serba-serbi kehidupan</h3>
+        <button id="btn">Mulai Quiz</button>
+    </div>
+
+    <div 
+    id="quiz_window" 
+    class="hidden"
+    >
+        <h1 id="questions"></h1>
+
+        <input type="radio" name="choices" data-id="0"  id="choice0">
+        <label for="choice0" id="choiceText0"></label>
+
+        <input type="radio" name="choices" data-id="1"  id="choice1">
+        <label for="choice1" id="choiceText1"></label>
+
+        <input type="radio" name="choices" data-id="2"  id="choice2">
+        <label for="choice2" id="choiceText2"></label>
+
+        <input type="radio" name="choices" data-id="3"  id="choice3">
+        <label for="choice3" id="choiceText3"></label>
+
+        <button>selanjutnya</button>
+    </div>
+
+    <div 
+    id="stop_window" 
+    class="hidden"
+    >
+        <h4>Heellow</h4>
+    </div>
+
+   
+    <script>
+
+        // ===============
+        // ===== Data =====
+        // ================
+        // =================        
+        const DB_QUIZ = [
+            {
+                question: "Apa itu Kehidupan",
+                answers: ["Gk nyata","entahlah","relistis","kenyataan yg fana"]
+            },
+
+            {
+                question: "Sop dibalik?",
+                answers: ["melayang","doS","poS","tumpah"]
+            },
+
+            {
+                question: "Harta,Tahta...",
+                answers: ["wanita","akhlak","kehidupan","kekayaan"],
+            }
+        ];
+
+        //   ================
+        //  ==================  
+        // ==  Struktur Data ==
+        //  ==================
+        //  ================== 
+        //  ====    ==    ====
+        //  ====[][]==[][]==== 
+        //  ====____==____====
+             
+        const Jawaban       = [3,1,1];  
+        let current_q       = 0;
+        let total_score     = 0;
+        let saved_answer    = [];
+        const button        = document.querySelector('#quiz_window button');
+        const btn = document.getElementById('btn');
+        
+
+
+    //      11111111111
+    //     11         11
+    //    111         11
+    //               11
+    //               1
+    //      QUIZ    1   
+    //              1
+    //              1
+    //             000
+    //             000 
+
+
+        btn.addEventListener('click',function startQuiz()
+        {
+            document.getElementById('op_window').style.display = "none";
+            document.getElementById('quiz_window').style.display = "block";
+        });
+        
+        document.addEventListener('DOMContentLoaded',(e)=>
+        {
+            setupQuestion();
+        });
+
+        function setupQuestion()
+        {
+            document.getElementById('questions').innerText = DB_QUIZ[current_q]['question'];
+            document.getElementById('choiceText0').innerText = DB_QUIZ[current_q]['answers'][0];
+            document.getElementById('choiceText1').innerText = DB_QUIZ[current_q]['answers'][1];
+            document.getElementById('choiceText2').innerText = DB_QUIZ[current_q]['answers'][2];
+            document.getElementById('choiceText3').innerText = DB_QUIZ[current_q]['answers'][3];
+        }
+
+       
+        function stopQUIZ()
+        {
+            cekScore();
+            alert('Selamat!,dan Terimakasih telah mencoba Kuis ini ');
+            document.getElementById('quiz_window').style.display = "none";
+            document.getElementById('stop_window').style.display = "block";
+            document.querySelector('h4').innerHTML ="Score kamu"  + total_score;
+            return;
+        }
+
+
+        function saveAnswers()
+        {
+            const inputRadio    = document.querySelector('input[name="choices"]:checked');
+            
+            if(inputRadio != null)
+            {
+                saved_answer.push(parseInt(inputRadio.getAttribute('data-id')));
+            }else{
+                //default answer
+                saved_answer.push(0);
+            }
+        }
+       
+
+        button.addEventListener('click',function nextQuestion()
+        {
+            current_q++;
+
+            saveAnswers();
+
+            if(current_q > DB_QUIZ.length -1)
+            {
+                stopQUIZ();
+            }
+
+            reset_State();
+
+            setupQuestion();
+        });
+
+        function reset_State()
+        {
+            const ambil_jawaban = document.querySelector('input[name="choices"]:checked');
+            
+            if(ambil_jawaban != null)
+            {
+                ambil_jawaban.checked = false;
+            }
+        }
+
+        function cekScore()
+        {
+            for(i =0; i < saved_answer.length; i++)
+            {
+                if(saved_answer[i] == Jawaban[i])
+                {
+                    total_score += 100;
+                }
+            }
+        }        
+
+    </script>
+</body>
+</html>
